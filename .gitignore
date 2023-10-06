@@ -1,0 +1,51 @@
+# Ignore docs files
+_gh_pages
+_site
+.ruby-version
+.jekyll-cache
+
+# Numerous always-ignore extensions
+*.diff
+*.err
+*.orig
+*.log
+*.rej
+*.swo
+*.swp
+*.zip
+*.vi
+*~
+
+# OS or Editor folders
+.DS_Store
+._*
+Thumbs.db
+.cache
+.project
+.settings
+.tmproj
+*.esproj
+nbproject
+*.sublime-project
+*.sublime-workspace
+.idea
+
+# Komodo
+*.komodoproject
+.komodotools
+
+# grunt-html-validation
+validation-status.json
+validation-report.json
+
+# Folders to ignore
+node_modules
+bower_components
+
+# Python stuff
+__pycache__/
+.ipynb_checkpoints/
+_posts/2020-04-01-whats-jekyll.md
+_posts/2020-04-02-example-content.md
+_posts/2020-04-03-introducing-lanyon.md
+_posts/2021-09-17-ift6758-demo.md
