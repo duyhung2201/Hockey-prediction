@@ -1,7 +1,7 @@
 # Setup
 title:               IFT6758 Blog
-tagline:             'A template based on the Lanyon Jekyll theme'
-description:         'A reserved <a href="https://jekyllrb.com" target="_blank">Jekyll</a> theme that places the utmost gravity on content with a hidden drawer. Made by <a href="https://twitter.com/mdo" target="_blank">@mdo</a>.'
+tagline:             ''
+description:         ''
 url:                 ''
 baseurl:             ''
 paginate:            5
@@ -9,9 +9,9 @@ permalink:           pretty
 
 # About/contact
 author:
-  name:              Mark Otto
-  url:               https://twitter.com/mdo
-  email:             markdotto@gmail.com
+  name:              Gauransh Kumar(Team B03)
+  url:               https://gauransh.dev
+  email:             gauransh.kumar@umontreal.com
 
 # Gems
 plugins:
