@@ -2,8 +2,8 @@
 title:               IFT6758 Blog
 tagline:             ''
 description:         ''
-url:                 'https://gauransh.dev'
-baseurl:             '/tmpblogds'
+url:                 ''
+baseurl:             ''
 paginate:            5
 permalink:           pretty
 
