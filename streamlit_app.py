@@ -36,6 +36,7 @@ with st.sidebar:
                 st.error(f"An error occurred: {e}")
         else:
             st.warning("Please fill all fields.")
+
 # Game ID input
 with st.container():
     st.header("Game ID")
@@ -89,6 +90,31 @@ def display_prediction_features(new_events):
         st.write("No features available for prediction.")
 
 
+# Global variables to store last processed event ID and cumulative events to skip redundant predictions
+if "last_processed_event_id" not in st.session_state:
+    st.session_state.last_processed_event_id = None
+
+if "cumulative_events_df" not in st.session_state:
+    st.session_state.cumulative_events_df = pd.DataFrame()
+
+
+def get_new_events(game_data):
+    new_events = game_data[
+        game_data["event_id"] > st.session_state.last_processed_event_id
+    ]
+    if not new_events.empty:
+        st.session_state.last_processed_event_id = new_events["event_id"].iloc[-1]
+    return new_events
+
+
+@st.cache(allow_output_mutation=True)
+def update_cumulative_events(new_events):
+    st.session_state.cumulative_events_df = pd.concat(
+        [st.session_state.cumulative_events_df, new_events]
+    ).drop_duplicates()
+    return st.session_state.cumulative_events_df
+
+
 # Main functionality to ping game, get data, make predictions and display results
 with st.container():
     if st.button("Ping Game"):
@@ -96,25 +122,34 @@ with st.container():
             try:
                 game_data, new_events = game_client.ping_game(game_id)
                 if not game_data.empty:
-                    display_game_info(game_data)  # Display game info
-                    display_prediction_features(
-                        new_events
-                    )  # Display prediction features
+                    # Displaying game information
+                    display_game_info(game_data)
 
-                    # Getting and displaying predictions
-                    predictions = get_predictions(new_events)
-                    new_events = new_events.assign(goal_prob=pd.Series(predictions))
-                    st.write("New Events with Predictions:")
-                    st.dataframe(new_events)
-                else:
-                    st.warning("No data available for the entered Game ID.")
+                    if not new_events.empty:
+                        # Prediction for new events
+                        predictions = get_predictions(new_events)
+                        new_events_with_predictions = new_events.assign(
+                            goal_prob=pd.Series(predictions)
+                        )
 
-                if not new_events.empty:
-                    st.write("Data used for predictions and predictions:")
-                    st.dataframe(new_events)
+                        # Extracting relevant columns for prediction
+                        _, relevant_columns = serving_client.filter_events(
+                            new_events_with_predictions
+                        )
+                        st.session_state.cumulative_events_df = (
+                            update_cumulative_events(
+                                new_events_with_predictions[relevant_columns]
+                            )
+                        )
+
+                        # Displaying data used for prediction and predictions
+                        st.write("Data used for prediction with predictions:")
+                        st.dataframe(st.session_state.cumulative_events_df)
+
                 else:
+                    # Displaying data used for prediction and predictions
                     st.write("No new events since the last update.")
-
+                    st.dataframe(st.session_state.cumulative_events_df)
             except Exception as e:
                 st.error(f"An error occurred while fetching game data: {e}")
         else:
