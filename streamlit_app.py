@@ -20,6 +20,7 @@ with st.sidebar:
     st.header("Model Selection")
     workspace = st.text_input("Workspace", value="duyhung2201")
     model_name = st.text_input("Model", value=serving_client.model)
+    version = st.text_input("Version", value="1.40.0")
     if st.button("Download Model"):
         if workspace and model_name:
             try:
@@ -40,7 +41,6 @@ with st.container():
 
 
 # Function to display relevant game information
-@st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def display_game_info(game_data, metadata):
     print(metadata)
     print(game_data.columns)
@@ -73,7 +73,6 @@ def display_game_info(game_data, metadata):
     st.metric("Score Difference - Away Team", f"{int(score_difference_away)}")
 
 
-@st.cache
 def get_predictions(new_events):
     predictions = serving_client.predict(new_events)
     return predictions
@@ -105,12 +104,20 @@ def get_new_events(game_data):
     return new_events
 
 
-@st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def update_cumulative_events(new_events):
     st.session_state.cumulative_events_df = pd.concat(
         [st.session_state.cumulative_events_df, new_events]
     ).drop_duplicates()
     return st.session_state.cumulative_events_df
+
+
+def filter_cumulative_events(model, df):
+    if model == "lr-distance":
+        filtered_df = df[["net_distance", "goal_prob"]]
+    elif model == "lr-shot-distance":
+        filtered_df = df[["net_distance", "shot_angle", "goal_prob"]]
+
+    return filtered_df
 
 
 # Main functionality to ping game, get data, make predictions and display results
@@ -123,31 +130,12 @@ with st.container():
                     # Displaying game information
                     display_game_info(game_data, metadata)
 
-                    if not new_events.empty:
-                        # Prediction for new events
-                        predictions = get_predictions(new_events)
-                        new_events_with_predictions = new_events.assign(
-                            goal_prob=pd.Series(predictions)
-                        )
-
-                        # Extracting relevant columns for prediction
-                        _, relevant_columns = serving_client.filter_events(
-                            new_events_with_predictions
-                        )
-                        st.session_state.cumulative_events_df = (
-                            update_cumulative_events(
-                                new_events_with_predictions[relevant_columns]
-                            )
-                        )
-
-                        # Displaying data used for prediction and predictions
-                        st.write("Data used for prediction with predictions:")
-                        st.dataframe(st.session_state.cumulative_events_df)
-
+                    # Displaying data used for prediction and predictions
+                    st.write("Data used for prediction with predictions:")
+                    st.dataframe(filter_cumulative_events(model_name, game_data))
                 else:
                     # Displaying data used for prediction and predictions
-                    st.write("No new events since the last update.")
-                    st.dataframe(st.session_state.cumulative_events_df)
+                    st.write("Game Does not exist")
             except Exception as e:
                 st.error(f"An error occurred while fetching game data: {e}")
         else:
