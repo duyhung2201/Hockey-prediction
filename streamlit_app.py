@@ -43,6 +43,7 @@ with st.container():
 @st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def display_game_info(game_data, metadata):
     print(metadata)
+    print(game_data.columns)
     home_team = metadata["homeTeam"]["abbrev"]
     away_team = metadata["awayTeam"]["abbrev"]
     period = game_data["period"].iloc[-1]
@@ -57,22 +58,22 @@ def display_game_info(game_data, metadata):
     st.metric("Current Score", current_score)
 
     # Calculating and displaying expected goals and score difference
-    total_xg_home = game_data[game_data["team"] == home_team][
-        "xG"
-    ].sum()  # Adjust column names as per your data
-    total_xg_away = game_data[game_data["team"] == away_team][
-        "xG"
-    ].sum()  # Adjust column names as per your data
+    total_xg_home = game_data["home_xg"].iloc[
+        -1
+    ]  # Adjust column names as per your data
+    total_xg_away = game_data["away_xg"].iloc[
+        -1
+    ]  # Adjust column names as per your data
     score_difference_home = total_xg_home - game_data["home_score"].iloc[-1]
     score_difference_away = total_xg_away - game_data["away_score"].iloc[-1]
 
-    st.metric("Total Expected Goals - Home Team", f"{total_xg_home:.2f}")
-    st.metric("Total Expected Goals - Away Team", f"{total_xg_away:.2f}")
-    st.metric("Score Difference - Home Team", f"{score_difference_home:.2f}")
-    st.metric("Score Difference - Away Team", f"{score_difference_away:.2f}")
+    st.metric("Total Expected Goals - Home Team", f"{int(total_xg_home)}")
+    st.metric("Total Expected Goals - Away Team", f"{int(total_xg_away)}")
+    st.metric("Score Difference - Home Team", f"{int(score_difference_home)}")
+    st.metric("Score Difference - Away Team", f"{int(score_difference_away)}")
 
 
-@st.cache(suppress_st_warning=True)
+@st.cache
 def get_predictions(new_events):
     predictions = serving_client.predict(new_events)
     return predictions
