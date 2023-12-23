@@ -87,7 +87,7 @@ def filter_cumulative_events(model, df):
 
     return filtered_df
 
-
+"""
 rink_image_np = image.imread("nhl_rink.png")
 
 
@@ -164,7 +164,7 @@ def update_event_plot(filtered_data, selected_team, selected_event_id):
     plt.xlabel("Feet")
     plt.ylabel("Feet")
     st.pyplot(plt)
-
+"""
 
 # Main functionality to ping game, get data, make predictions and display results
 with st.container():
@@ -179,7 +179,7 @@ with st.container():
                     # Displaying data used for prediction and predictions
                     st.write("Data used for prediction with predictions:")
                     st.dataframe(filter_cumulative_events(model_name, game_data))
-
+                    """
                     # Displaying shot plotting
                     ## Sidebar controls for team selection
                     st.sidebar.header("Plotting events")
@@ -205,15 +205,18 @@ with st.container():
                     ]
                     st.header("Shot plotting")
                     st.write(
-                        """
+                    """
+                    """
                     Interactive tool to visualize the different shots in the selected game.\n 
                     To include this functionality we used the extracted data that our model uses and plotted it on a rink image. We used a selectbox to select the team and a slider to go through every shot of that team. \n
                     The green circles represent goals and the red cross represent missed shots. \n
                     The arrow represents the vector of the angle and distance towards the goal.\n
                     Finally, we added the angle and distance of the shot to the arrow using plt.arrow and a logic to make sure that the arrow pointed on the right direction based on the sign of the coordinates and the distance.
                     """
+                    """
                     )
                     update_event_plot(filtered_data, selected_team, selected_event_id)
+                    """
                 else:
                     # Displaying data used for prediction and predictions
                     st.write("Game Does not exist")
