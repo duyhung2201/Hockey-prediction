@@ -16,3 +16,4 @@ jupyterlab
 ipywidgets
 streamlit
 python-dotenv
+python-json-logger

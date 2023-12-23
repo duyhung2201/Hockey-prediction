@@ -1,0 +1,3 @@
+[submodule "milestone3/docker-project-template"]
+	path = milestone3/docker-project-template
+	url = git@github.com:udem-ift6758/docker-project-template.git
