@@ -32,7 +32,7 @@ class GameClient:
             game_data = download_game(game_id)
         except Exception as e:
             logger.error(f"Error downloading game data for game_id {game_id}: {e}")
-            return df, pd.DataFrame()
+            return df, pd.DataFrame(), {}
         new_events = self.get_new_events(game_data, last_event_id)
 
         metadata = get_metadata(game_data)
