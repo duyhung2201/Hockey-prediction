@@ -5,8 +5,8 @@ from ift6758.ift6758.client.serving_client import *
 from ift6758.ift6758.client.game_client import *
 
 
-serving_client = ServingClient("127.0.0.1", "8080")
-game_client = GameClient("127.0.0.1", "8080")
+serving_client = ServingClient("127.0.0.1", "7777")
+game_client = GameClient("127.0.0.1", "7777")
 
 st.title("Hockey Visualization App")
 """
@@ -20,16 +20,12 @@ with st.sidebar:
     st.header("Model Selection")
     workspace = st.text_input("Workspace", value="duyhung2201")
     model_name = st.text_input("Model", value=serving_client.model)
-    version = st.text_input("Version", value="1.40.0")
     if st.button("Download Model"):
-        if workspace and model_name and version:
+        if workspace and model_name:
             try:
-                response = serving_client.download_registry_model(
-                    workspace, model_name, version
-                )
+                response = serving_client.download_registry_model(workspace, model_name)
                 if response:
                     st.success(f"{model_name} downloaded successfully!")
-                    st.json(response)
                 else:
                     st.error("Failed to download the model.")
             except Exception as e:
@@ -44,12 +40,13 @@ with st.container():
 
 
 # Function to display relevant game information
-@st.cache(allow_output_mutation=True)
-def display_game_info(game_data):
-    home_team = game_data["home_team"].iloc[0]
-    away_team = game_data["away_team"].iloc[0]
+@st.cache(allow_output_mutation=True, suppress_st_warning=True)
+def display_game_info(game_data, metadata):
+    print(metadata)
+    home_team = metadata["homeTeam"]["abbrev"]
+    away_team = metadata["awayTeam"]["abbrev"]
     period = game_data["period"].iloc[-1]
-    time_left = game_data["time_left"].iloc[-1]
+    time_left = game_data["time_remaining"].iloc[-1]
     current_score = f"{game_data['home_score'].iloc[-1]} - {game_data['away_score'].iloc[-1]}"  # Adjust column names as per your data
 
     # Display game information
@@ -75,7 +72,7 @@ def display_game_info(game_data):
     st.metric("Score Difference - Away Team", f"{score_difference_away:.2f}")
 
 
-@st.cache
+@st.cache(suppress_st_warning=True)
 def get_predictions(new_events):
     predictions = serving_client.predict(new_events)
     return predictions
@@ -107,7 +104,7 @@ def get_new_events(game_data):
     return new_events
 
 
-@st.cache(allow_output_mutation=True)
+@st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def update_cumulative_events(new_events):
     st.session_state.cumulative_events_df = pd.concat(
         [st.session_state.cumulative_events_df, new_events]
@@ -120,10 +117,10 @@ with st.container():
     if st.button("Ping Game"):
         if game_id:
             try:
-                game_data, new_events = game_client.ping_game(game_id)
+                game_data, new_events, metadata = game_client.ping_game(game_id)
                 if not game_data.empty:
                     # Displaying game information
-                    display_game_info(game_data)
+                    display_game_info(game_data, metadata)
 
                     if not new_events.empty:
                         # Prediction for new events

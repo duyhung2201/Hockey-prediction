@@ -35,6 +35,7 @@ def download_game(game_id):
     data = json.loads(response.text)
     return data
 
+
 def extract_from_events(events, metadata):
     result = []
     home_team = metadata["homeTeam"]["abbrev"]
@@ -68,7 +69,7 @@ def extract_from_events(events, metadata):
                 if shot["event"] == "goal":
                     score[shot["team"]] += 1
                 shot["home_score"] = score[metadata["homeTeam"]["id"]]
-                shot["away_score"] = score[metadata["awayTeam"]["id"]]             
+                shot["away_score"] = score[metadata["awayTeam"]["id"]]
                 shot["shot_type"] = event["details"].get("shotType")
                 shot["net_x"] = find_opponent_net(
                     event["details"]["zoneCode"], shot["x_coordinate"]
@@ -116,7 +117,7 @@ def extract_from_raw(data):
                 # shot['shooter_id'] = event['details'].get('shootingPlayerId')
                 # shot['goalie_id'] = event['details'].get('goalieInNetId')
                 shot["shot_type"] = event["details"].get("shotType")
-                shot["net_x"] = find_oppenent_net(
+                shot["net_x"] = find_opponent_net(
                     event["details"]["zoneCode"], shot["x_coordinate"]
                 )
                 shot["is_empty_net"] = is_empty_net(

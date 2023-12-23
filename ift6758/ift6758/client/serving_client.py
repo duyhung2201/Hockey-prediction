@@ -44,7 +44,9 @@ class ServingClient:
                 return pd.DataFrame()
 
             predictions = response.json()
+            print("\n\n" + str(predictions) + "\n\n")
             df["goal_prob"] = None
+            print([probs[1] for probs in predictions])
             df.loc[filtered_X.index, "goal_prob"] = [probs[1] for probs in predictions]
 
             return df
@@ -72,7 +74,7 @@ class ServingClient:
             logger.error(f"Error parsing response: {e}")
             return {}
 
-    def download_registry_model(self, workspace: str, model: str, version: str) -> dict:
+    def download_registry_model(self, workspace: str, model: str) -> dict:
         """
         Triggers a "model swap" in the service; the workspace, model, and model version are
         specified and the service looks for this model in the model registry and tries to
@@ -90,7 +92,7 @@ class ServingClient:
         try:
             response = requests.post(
                 f"{self.base_url}/download_registry_model",
-                json={"workspace": workspace, "model": model, "version": version},
+                json={"workspace": workspace, "model": model},
             )
 
             if response.status_code != 200:
