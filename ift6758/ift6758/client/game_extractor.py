@@ -35,13 +35,16 @@ def download_game(game_id):
     data = json.loads(response.text)
     return data
 
-
 def extract_from_events(events, metadata):
     result = []
     home_team = metadata["homeTeam"]["abbrev"]
     team_mapping = {
         metadata["homeTeam"]["id"]: home_team,
         metadata["awayTeam"]["id"]: metadata["awayTeam"]["abbrev"],
+    }
+    score = {
+        metadata["homeTeam"]["id"]: 0,
+        metadata["awayTeam"]["id"]: 0,
     }
     for event in events:
         try:
@@ -56,14 +59,16 @@ def extract_from_events(events, metadata):
                 shot["game_seconds"] = cal_game_seconds(
                     shot["period_time"], shot["period"]
                 )
-                shot["period_remaining"] = event["timeRemaining"]
+                shot["time_remaining"] = event["timeRemaining"]
 
                 shot["team"] = team_mapping[event["details"].get("eventOwnerTeamId")]
                 shot["x_coordinate"] = event["details"].get("xCoord")
                 shot["y_coordinate"] = event["details"].get("yCoord")
 
-                # shot['shooter_id'] = event['details'].get('shootingPlayerId')
-                # shot['goalie_id'] = event['details'].get('goalieInNetId')
+                if shot["event"] == "goal":
+                    score[shot["team"]] += 1
+                shot["home_score"] = score[metadata["homeTeam"]["id"]]
+                shot["away_score"] = score[metadata["awayTeam"]["id"]]             
                 shot["shot_type"] = event["details"].get("shotType")
                 shot["net_x"] = find_opponent_net(
                     event["details"]["zoneCode"], shot["x_coordinate"]
@@ -162,4 +167,4 @@ def process_events(events, game_data):
         "id": game_data["id"],
     }
     t = pd.DataFrame(extract_from_events(events, metadata))
-    return engineer_feature(t)
+    return engineer_feature(t), metadata

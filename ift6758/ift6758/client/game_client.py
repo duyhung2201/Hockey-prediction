@@ -35,9 +35,10 @@ class GameClient:
             return df, pd.DataFrame()
         new_events = self.get_new_events(game_data, last_event_id)
 
+        metadata = {}
         new_events_results = pd.DataFrame()
         if len(new_events) > 0:
-            new_events_df = process_events(new_events, game_data)
+            new_events_df, metadata = process_events(new_events, game_data)
             new_events_results = self.serving_client.predict(new_events_df)
             if len(new_events_results) == 0:
                 logger.error(f"Error predicting events for game_id {game_id}")
@@ -45,7 +46,7 @@ class GameClient:
                 df = pd.concat([df, new_events_results])
                 df.to_csv(path, index=False)
 
-        return df, new_events_results
+        return df, new_events_results, metadata
 
     def get_new_events(self, data, last_event_id):
         new_events = [
