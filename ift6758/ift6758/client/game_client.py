@@ -39,8 +39,11 @@ class GameClient:
         if len(new_events) > 0:
             new_events_df = process_events(new_events, game_data)
             new_events_results = self.serving_client.predict(new_events_df)
-            df = pd.concat([df, new_events_results])
-            df.to_csv(path, index=False)
+            if len(new_events_results) == 0:
+                logger.error(f"Error predicting events for game_id {game_id}")
+            else:
+                df = pd.concat([df, new_events_results])
+                df.to_csv(path, index=False)
 
         return df, new_events_results
 
