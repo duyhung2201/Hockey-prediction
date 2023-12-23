@@ -1,5 +1,5 @@
-from ift6758.ift6758.client.serving_client import ServingClient
-from ift6758.ift6758.client.game_extractor import *
+from client.serving_client import ServingClient
+from client.game_extractor import *
 import pandas as pd
 import logging
 
@@ -40,7 +40,7 @@ class GameClient:
         if len(new_events) > 0:
             new_events_df = process_events(new_events, metadata)
             new_events_results = self.serving_client.predict(new_events_df)
-            self.cal_xgoal(new_events_results, metadata['homeTeam']['abbrev'])
+            self.cal_xgoal(new_events_results, metadata["homeTeam"]["abbrev"])
             if len(new_events_results) == 0:
                 logger.error(f"Error predicting events for game_id {game_id}")
             else:
@@ -60,12 +60,18 @@ class GameClient:
 
     def cal_xgoal(self, new_events_results, home_team_id):
         df = new_events_results.copy()
-        df['is_goal_prediction'] = df['goal_prob'].apply(lambda x: 1 if x > 0.5 else 0)
-        df['is_home_goal_prediction'] = df.apply(lambda x: x['is_goal_prediction'] if x['team'] == home_team_id else 0, axis=1)
-        df['is_away_goal_prediction'] = df.apply(lambda x: x['is_goal_prediction'] if x['team'] != home_team_id else 0, axis=1)
-        df['home_xg'] = df['is_home_goal_prediction'].cumsum()
-        df['away_xg'] = df['is_away_goal_prediction'].cumsum()
+        df["is_goal_prediction"] = df["goal_prob"].apply(lambda x: 1 if x > 0.5 else 0)
+        df["is_home_goal_prediction"] = df.apply(
+            lambda x: x["is_goal_prediction"] if x["team"] == home_team_id else 0,
+            axis=1,
+        )
+        df["is_away_goal_prediction"] = df.apply(
+            lambda x: x["is_goal_prediction"] if x["team"] != home_team_id else 0,
+            axis=1,
+        )
+        df["home_xg"] = df["is_home_goal_prediction"].cumsum()
+        df["away_xg"] = df["is_away_goal_prediction"].cumsum()
 
-        new_events_results['is_goal_prediction'] = df['is_goal_prediction']
-        new_events_results['home_xg'] = df['home_xg']
-        new_events_results['away_xg'] = df['away_xg']
+        new_events_results["is_goal_prediction"] = df["is_goal_prediction"]
+        new_events_results["home_xg"] = df["home_xg"]
+        new_events_results["away_xg"] = df["away_xg"]

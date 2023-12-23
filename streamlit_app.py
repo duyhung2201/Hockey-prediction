@@ -1,12 +1,14 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from ift6758.ift6758.client.serving_client import *
-from ift6758.ift6758.client.game_client import *
+from client.serving_client import *
+from client.game_client import *
+import os
 
-
-serving_client = ServingClient("127.0.0.1", "7777")
-game_client = GameClient("127.0.0.1", "7777")
+host = os.environ.get("CLIENT_HOST", "0.0.0.0")
+port = os.environ.get("CLIENT_PORT", "8000")
+serving_client = ServingClient(host, port)
+game_client = GameClient(host, port)
 
 st.title("Hockey Visualization App")
 """

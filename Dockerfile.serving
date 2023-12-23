@@ -8,7 +8,7 @@
 
 # https://docs.docker.com/engine/reference/builder/#from
 # You shouldn't need to change this
-FROM python:3.7
+FROM python:3.10
 
 # https://docs.docker.com/engine/reference/builder/#workdir
 # Create and cd into /code as your working directory
@@ -18,7 +18,6 @@ WORKDIR /code
 COPY ift6758/requirements.txt .
 
 # TODO: install libs
-RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # TODO: expose ports (or do this in docker-compose)

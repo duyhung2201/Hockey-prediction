@@ -6,7 +6,6 @@ services:
     build:
       context: ./
       dockerfile: ./Dockerfile.serving
-    image: ift6758/serving:latest
     ports:
       - 8000:8000
     environment:
@@ -14,13 +13,15 @@ services:
       - COMET_ML_PROJECT_NAME=${COMET_ML_PROJECT_NAME}
       - COMET_ML_WORKSPACE=${COMET_ML_WORKSPACE}
 
+
+###### Uncomment below when you're ready to add the final notebook container to your docker compose
   streamlit:
     build:
       context: ./
       dockerfile: ./Dockerfile.streamlit
-    image: ift6758/streamlit:latest
-    environment:
-      - SERVING_HOST=serving
-      - SERVING_PORT=8000
     ports:
-      - 8005:8005
+      - 8080:8080
+    environment:
+      - CLIENT_HOST=serving
+      - CLIENT_PORT=8000
+      
