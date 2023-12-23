@@ -44,8 +44,8 @@ def extract_from_events(events, metadata):
         metadata["awayTeam"]["id"]: metadata["awayTeam"]["abbrev"],
     }
     score = {
-        metadata["homeTeam"]["id"]: 0,
-        metadata["awayTeam"]["id"]: 0,
+        metadata["homeTeam"]["abbrev"]: 0,
+        metadata["awayTeam"]["abbrev"]: 0,
     }
     for event in events:
         try:
@@ -68,8 +68,8 @@ def extract_from_events(events, metadata):
 
                 if shot["event"] == "goal":
                     score[shot["team"]] += 1
-                shot["home_score"] = score[metadata["homeTeam"]["id"]]
-                shot["away_score"] = score[metadata["awayTeam"]["id"]]
+                shot["home_score"] = score[metadata["homeTeam"]["abbrev"]]
+                shot["away_score"] = score[metadata["awayTeam"]["abbrev"]]
                 shot["shot_type"] = event["details"].get("shotType")
                 shot["net_x"] = find_opponent_net(
                     event["details"]["zoneCode"], shot["x_coordinate"]
@@ -82,7 +82,7 @@ def extract_from_events(events, metadata):
         except Exception as e:
             print(e)
             print("game_id", metadata["id"])
-            print(event)
+            print(event)            
 
     return result
 
@@ -161,11 +161,14 @@ def process_gamedata(game_id):
     return engineer_feature(t)
 
 
-def process_events(events, game_data):
+def process_events(events, metadata):
+    t = pd.DataFrame(extract_from_events(events, metadata))
+    return engineer_feature(t)
+
+def get_metadata(game_data):
     metadata = {
         "homeTeam": game_data["homeTeam"],
         "awayTeam": game_data["awayTeam"],
         "id": game_data["id"],
     }
-    t = pd.DataFrame(extract_from_events(events, metadata))
-    return engineer_feature(t), metadata
+    return metadata

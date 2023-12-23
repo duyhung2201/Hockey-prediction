@@ -44,9 +44,7 @@ class ServingClient:
                 return pd.DataFrame()
 
             predictions = response.json()
-            print("\n\n" + str(predictions) + "\n\n")
             df["goal_prob"] = None
-            print([probs[1] for probs in predictions])
             df.loc[filtered_X.index, "goal_prob"] = [probs[1] for probs in predictions]
 
             return df
