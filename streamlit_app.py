@@ -117,6 +117,7 @@ with st.container():
             """
             Interactive tool to visualize the different shots in the selected game.\n 
             To include this functionality we used the extracted data that our model uses and plotted it on a rink image. We used a selectbox to select the team and a slider to go through every shot of that team. \n
+            We had to make extensive use of session state and caching to make sure the dataframe and game information did not reload during every change. \n
             The green circles represent goals and the red cross represent missed shots. \n
             The arrow represents the vector of the angle and distance towards the goal.\n
             Finally, we added the angle and distance of the shot to the arrow using plt.arrow and a logic to make sure that the arrow pointed on the right direction based on the sign of the coordinates and the distance.
