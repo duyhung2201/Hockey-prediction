@@ -1,13 +1,16 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from ift6758.ift6758.client.serving_client import *
-from ift6758.ift6758.client.game_client import *
+from client.serving_client import *
+from client.game_client import *
+import os
 import matplotlib.pyplot as plt
 import matplotlib.image as image
 
-serving_client = ServingClient("127.0.0.1", "7777")
-game_client = GameClient("127.0.0.1", "7777")
+host = os.environ.get("CLIENT_HOST", "0.0.0.0")
+port = os.environ.get("CLIENT_PORT", "8000")
+serving_client = ServingClient(host, port)
+game_client = GameClient(host, port)
 
 st.title("Hockey Visualization App")
 """
@@ -21,7 +24,7 @@ with st.sidebar:
     st.header("Model Selection")
     workspace = st.text_input("Workspace", value="duyhung2201")
     model_name = st.text_input("Model", value=serving_client.model)
-    version = st.text_input("Version", value="")
+    version = st.text_input("Version", value="1.40.0")
     if st.button("Download Model"):
         if workspace and model_name:
             try:
@@ -36,47 +39,75 @@ with st.sidebar:
             st.warning("Please fill all fields.")
 
 # Game ID input
+if "game_id" not in st.session_state:
+    st.session_state["game_id"] = None
+
 with st.container():
     st.header("Game ID")
-    game_id = st.text_input("Enter Game ID")
+    st.session_state["game_id"] = st.text_input(
+        "Enter Game ID", value=st.session_state.get("game_id", "")
+    )
 
 
 # Function to display relevant game information
+@st.cache_data
 def display_game_info(game_data, metadata):
-    print(metadata)
-    print(game_data.columns)
     home_team = metadata["homeTeam"]["abbrev"]
     away_team = metadata["awayTeam"]["abbrev"]
     period = game_data["period"].iloc[-1]
     time_left = game_data["time_remaining"].iloc[-1]
-    current_score = f"{game_data['home_score'].iloc[-1]} - {game_data['away_score'].iloc[-1]}"  # Adjust column names as per your data
-
-    # Display game information
-    st.metric("Home Team", home_team)
-    st.metric("Away Team", away_team)
-    st.metric("Period", period)
-    st.metric("Time Left in Period", time_left)
-    st.metric("Current Score", current_score)
 
     # Calculating and displaying expected goals and score difference
-    total_xg_home = game_data["home_xg"].iloc[
-        -1
-    ]  # Adjust column names as per your data
-    total_xg_away = game_data["away_xg"].iloc[
-        -1
-    ]  # Adjust column names as per your data
+    total_xg_home = game_data["home_xg"].iloc[-1]
+    total_xg_away = game_data["away_xg"].iloc[-1]
     score_difference_home = total_xg_home - game_data["home_score"].iloc[-1]
     score_difference_away = total_xg_away - game_data["away_score"].iloc[-1]
 
-    st.metric("Total Expected Goals - Home Team", f"{int(total_xg_home)}")
-    st.metric("Total Expected Goals - Away Team", f"{int(total_xg_away)}")
-    st.metric("Score Difference - Home Team", f"{int(score_difference_home)}")
-    st.metric("Score Difference - Away Team", f"{int(score_difference_away)}")
+    return {
+        "home_team": home_team,
+        "away_team": away_team,
+        "period": period,
+        "time_left": time_left,
+        "total_xg_home": total_xg_home,
+        "total_xg_away": total_xg_away,
+        "home_score": game_data["home_score"].iloc[-1],
+        "away_score": game_data["away_score"].iloc[-1],
+        "score_difference_home": score_difference_home,
+        "score_difference_away": score_difference_away,
+    }
+
+
+def show_game_info(game_info):
+    if game_info:
+        st.subheader(
+            f"Game {st.session_state['game_id']} : {game_info['home_team']} vs {game_info['away_team']}"
+        )
+        st.write(f"Period: {game_info['period']} - {game_info['time_left']} left")
+        col1, col2 = st.columns(2)
+        col1.metric(
+            f"{game_info['home_team']} xG (actual)",
+            f"{int(game_info['total_xg_home'])} ({game_info['home_score']})",
+            delta=float(game_info["score_difference_home"]),
+        )
+        col2.metric(
+            f"{game_info['away_team']} xG (actual)",
+            f"{int(game_info['total_xg_away'])} ({game_info['away_score']})",
+            delta=float(game_info["score_difference_away"]),
+        )
 
 
 def get_predictions(new_events):
     predictions = serving_client.predict(new_events)
     return predictions
+
+
+def display_prediction_features(new_events):
+    filtered_events, _ = serving_client.filter_events(new_events)
+    if not filtered_events.empty:
+        st.write("Features Used for Prediction:")
+        st.dataframe(filtered_events)
+    else:
+        st.write("No features available for prediction.")
 
 
 def filter_cumulative_events(model, df):
@@ -87,7 +118,7 @@ def filter_cumulative_events(model, df):
 
     return filtered_df
 
-"""
+
 rink_image_np = image.imread("nhl_rink.png")
 
 
@@ -164,64 +195,92 @@ def update_event_plot(filtered_data, selected_team, selected_event_id):
     plt.xlabel("Feet")
     plt.ylabel("Feet")
     st.pyplot(plt)
-"""
+
 
 # Main functionality to ping game, get data, make predictions and display results
 with st.container():
+    if "ping_pressed" not in st.session_state:
+        st.session_state.ping_pressed = False
+
     if st.button("Ping Game"):
-        if game_id:
+        st.session_state.ping_pressed = True
+
+        if st.session_state["game_id"]:
             try:
-                game_data, new_events, metadata = game_client.ping_game(game_id)
+                game_data, new_events, metadata = game_client.ping_game(
+                    st.session_state["game_id"]
+                )
                 if not game_data.empty:
-                    # Displaying game information
-                    display_game_info(game_data, metadata)
-
-                    # Displaying data used for prediction and predictions
-                    st.write("Data used for prediction with predictions:")
-                    st.dataframe(filter_cumulative_events(model_name, game_data))
-                    """
-                    # Displaying shot plotting
-                    ## Sidebar controls for team selection
-                    st.sidebar.header("Plotting events")
-                    selected_team = st.sidebar.selectbox(
-                        "Select Team", game_data["team"].unique()
+                    # Storing game information and data used for prediction in the session state
+                    st.session_state["game_info"] = display_game_info(
+                        game_data, metadata
                     )
-
-                    ## Get unique event IDs for the selected team
-                    unique_event_ids = game_data[game_data["team"] == selected_team][
-                        "event_id"
-                    ].unique()
-
-                    ## Sidebar slider for event ID selection based on index
-                    selected_event_index = st.sidebar.slider(
-                        "Select Event Index", 0, len(unique_event_ids) - 1, 0
+                    st.session_state["prediction_data"] = filter_cumulative_events(
+                        model_name, game_data
                     )
-                    selected_event_id = unique_event_ids[selected_event_index]
-
-                    ## Filter data for the selected event ID
-                    filtered_data = game_data[
-                        (game_data["team"] == selected_team)
-                        & (game_data["event_id"] == selected_event_id)
-                    ]
-                    st.header("Shot plotting")
-                    st.write(
-                    """
-                    """
-                    Interactive tool to visualize the different shots in the selected game.\n 
-                    To include this functionality we used the extracted data that our model uses and plotted it on a rink image. We used a selectbox to select the team and a slider to go through every shot of that team. \n
-                    The green circles represent goals and the red cross represent missed shots. \n
-                    The arrow represents the vector of the angle and distance towards the goal.\n
-                    Finally, we added the angle and distance of the shot to the arrow using plt.arrow and a logic to make sure that the arrow pointed on the right direction based on the sign of the coordinates and the distance.
-                    """
-                    """
-                    )
-                    update_event_plot(filtered_data, selected_team, selected_event_id)
-                    """
                 else:
-                    # Displaying data used for prediction and predictions
                     st.write("Game Does not exist")
-
             except Exception as e:
                 st.error(f"An error occurred while fetching game data: {e}")
         else:
             st.warning("Please enter a valid Game ID.")
+
+    if "game_info" in st.session_state:
+        show_game_info(st.session_state["game_info"])
+
+    if (
+        st.session_state.get("prediction_data") is not None
+        and not st.session_state["prediction_data"].empty
+    ):
+        st.subheader("Data used for prediction with predictions:")
+        st.dataframe(st.session_state["prediction_data"])
+# Initialization of selected_event_index in session state
+if "selected_event_index" not in st.session_state:
+    st.session_state["selected_event_index"] = 0
+
+with st.container():
+    with st.sidebar:
+        st.header("Plotting events")
+        # Ensure game_data is available before trying to access it
+        if "game_id" in st.session_state and st.session_state["game_id"]:
+            game_data, _, _ = game_client.ping_game(st.session_state["game_id"])
+            if not game_data.empty:
+                selected_team = st.selectbox("Select Team", game_data["team"].unique())
+                unique_event_ids = game_data[game_data["team"] == selected_team][
+                    "event_id"
+                ].unique()
+
+                # Update selected_event_index based on the slider value
+                st.session_state["selected_event_index"] = st.slider(
+                    "Select Event Index",
+                    0,
+                    len(unique_event_ids) - 1,
+                    st.session_state["selected_event_index"],
+                )
+
+    # Now outside of the sidebar block, but still inside the container
+    if st.session_state.ping_pressed:
+        st.subheader("Shot plotting")
+        st.write(
+            """
+            Interactive tool to visualize the different shots in the selected game.\n 
+            To include this functionality we used the extracted data that our model uses and plotted it on a rink image. We used a selectbox to select the team and a slider to go through every shot of that team. \n
+            The green circles represent goals and the red cross represent missed shots. \n
+            The arrow represents the vector of the angle and distance towards the goal.\n
+            Finally, we added the angle and distance of the shot to the arrow using plt.arrow and a logic to make sure that the arrow pointed on the right direction based on the sign of the coordinates and the distance.
+            """
+        )
+
+        # Make sure game_data is defined before accessing it
+        if (
+            "game_id" in st.session_state
+            and st.session_state["game_id"]
+            and not game_data.empty
+        ):
+            selected_event_index = st.session_state["selected_event_index"]
+            selected_event_id = unique_event_ids[selected_event_index]
+            filtered_data = game_data[
+                (game_data["team"] == selected_team)
+                & (game_data["event_id"] == selected_event_id)
+            ]
+            update_event_plot(filtered_data, selected_team, selected_event_id)
