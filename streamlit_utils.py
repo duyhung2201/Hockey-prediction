@@ -10,8 +10,8 @@ def display_game_info(game_data, metadata):
     """
     Function to display game information and calculate expected goals and score difference
     """
-    home_team = metadata["homeTeam"]["abbrev"]
-    away_team = metadata["awayTeam"]["abbrev"]
+    home_team = metadata["homeTeam"]["name"]["default"]
+    away_team = metadata["awayTeam"]["name"]["default"]
     period = game_data["period"].iloc[-1]
     time_left = game_data["time_remaining"].iloc[-1]
 
