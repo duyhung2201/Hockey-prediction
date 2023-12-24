@@ -27,6 +27,8 @@ EXPOSE 8080
 
 COPY client ./client
 COPY streamlit_app.py .
+COPY streamlit_utils.py .
+COPY nhl_rink.png .
 
 CMD ["streamlit", "run", "streamlit_app.py", "--server.port", "8080", "--server.address", "0.0.0.0", "--server.headless", "True"]
 # either with the docker run command or in the docker-compose file
