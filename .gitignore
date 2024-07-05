@@ -219,3 +219,4 @@ data.tar.gz
 .jekyll-cache/
 _site/
 */*.env
+.env

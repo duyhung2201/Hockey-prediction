@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as image
 
 host = os.environ.get("CLIENT_HOST", "0.0.0.0")
-port = os.environ.get("CLIENT_PORT", "8000")
+port = os.environ.get("CLIENT_PORT", "7777")
 serving_client = ServingClient(host, port)
 game_client = GameClient(host, port)
 

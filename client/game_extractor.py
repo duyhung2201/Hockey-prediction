@@ -55,7 +55,7 @@ def extract_from_events(events, metadata):
                 shot["game_id"] = metadata["id"]
                 shot["event_id"] = event["eventId"]
                 shot["event"] = event["typeDescKey"]
-                shot["period"] = event["period"]
+                shot["period"] = event["periodDescriptor"]["number"]
                 shot["period_time"] = event["timeInPeriod"]
                 shot["game_seconds"] = cal_game_seconds(
                     shot["period_time"], shot["period"]
@@ -103,7 +103,7 @@ def extract_from_raw(data):
                 shot["game_id"] = data["id"]
                 shot["event_id"] = event["eventId"]
                 shot["event"] = event["typeDescKey"]
-                shot["period"] = event["period"]
+                shot["period"] = event["periodDescriptor"]["number"]
                 shot["period_time"] = event["timeInPeriod"]
                 shot["game_seconds"] = cal_game_seconds(
                     shot["period_time"], shot["period"]
