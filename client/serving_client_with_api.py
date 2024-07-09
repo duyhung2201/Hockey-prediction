@@ -2,7 +2,6 @@ import json
 import requests
 import pandas as pd
 import logging
-from serving.app import model_handler
 
 logger = logging.getLogger(__name__)
 
@@ -34,16 +33,15 @@ class ServingClient:
         try:
             df = X.copy()
             filtered_X, json_data = self.filter_events(df)
-            # response = requests.post(
-            #     f"{self.base_url}/predict",
-            #     data=json_data,
-            #     headers={"Content-type": "application/json"},
-            # )
-            response = model_handler.predict(json_data)
+            response = requests.post(
+                f"{self.base_url}/predict",
+                data=json_data,
+                headers={"Content-type": "application/json"},
+            )
 
-            # if response.status_code != 200:
-            #     logger.error(f"Prediction request failed: {response.text}")
-            #     return pd.DataFrame()
+            if response.status_code != 200:
+                logger.error(f"Prediction request failed: {response.text}")
+                return pd.DataFrame()
 
             predictions = response.json()
             df["goal_prob"] = None
@@ -90,13 +88,19 @@ class ServingClient:
             version (str): The model version to download
         """
         try:
-            # response = requests.post(
-            #     f"{self.base_url}/download_registry_model",
-            #     json={"workspace": workspace, "model": model},
-            # )
-            model_handler.load_model(model_name=model)
+            response = requests.post(
+                f"{self.base_url}/download_registry_model",
+                json={"workspace": workspace, "model": model},
+            )
+
+            if response.status_code != 200:
+                logger.error(f"Download registry model request failed: {response.text}")
+                return {}
             self.model = model
-            return "Model downloaded and loaded"
+            return response.json()
+        except requests.RequestException as e:
+            logger.error(f"Network or server error occurred: {e}")
+            return {}
         except ValueError as e:
             logger.error(f"Error parsing response: {e}")
             return {}
