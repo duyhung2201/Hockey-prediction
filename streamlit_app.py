@@ -17,14 +17,16 @@ st.title("Hockey Visualization App")
 """
 Project for IFT 6758 - Data Science (Fall 2023) \n
 App to extract data from the NHL API and predict goals based on different machine learning models \n
-By Duy Hung Le, Fayçal Zine-Eddine, Gauransh Kumar and Prince Immanuel Joseph Arokiaraj
+By Hung Le, Fayçal Zine-Eddine, Gauransh Kumar and Prince Arokiaraj
 """
 
 # Sidebar for model selection
 with st.sidebar:
     st.header("Model Selection")
     workspace = st.text_input("Workspace", value="duyhung2201")
-    model_name = st.text_input("Model", value=serving_client.model)
+    # model_name = st.text_input("Model", value=serving_client.model)
+    model_options = ["lr-shot-distance", "lr-distance"]
+    model_name = st.selectbox("Choose a model", options=model_options, index=model_options.index(serving_client.model) if serving_client.model in model_options else 0)
     version = st.text_input("Version", value="1.40.0")
     if st.button("Download Model"):
         if workspace and model_name:
