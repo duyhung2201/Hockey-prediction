@@ -2,15 +2,15 @@ import json
 import requests
 import pandas as pd
 import logging
-from serving.app import model_handler
+from serving.app import *
 
 logger = logging.getLogger(__name__)
 
 
 class ServingClient:
     def __init__(self, ip: str = "0.0.0.0", port: int = 5000, features=None):
-        self.base_url = f"http://{ip}:{port}"
-        logger.info(f"Initializing client; base URL: {self.base_url}")
+        # self.base_url = f"http://{ip}:{port}"
+        # logger.info(f"Initializing client; base URL: {self.base_url}")
 
         if features is None:
             features = ["distance"]
@@ -34,18 +34,18 @@ class ServingClient:
         try:
             df = X.copy()
             filtered_X, json_data = self.filter_events(df)
+            json_data = json.loads(json_data)
             # response = requests.post(
             #     f"{self.base_url}/predict",
             #     data=json_data,
             #     headers={"Content-type": "application/json"},
             # )
-            response = model_handler.predict(json_data)
+            response = predict(json_data)
+            if response is None:
+                logger.error(f"Prediction request failed: {response}")
+                return pd.DataFrame()
 
-            # if response.status_code != 200:
-            #     logger.error(f"Prediction request failed: {response.text}")
-            #     return pd.DataFrame()
-
-            predictions = response.json()
+            predictions = response
             df["goal_prob"] = None
             df.loc[filtered_X.index, "goal_prob"] = [probs[1] for probs in predictions]
 

@@ -121,10 +121,10 @@ def download_registry_model():
 
 
 @app.route("/predict", methods=["POST"])
-def predict():
-    resp = request.get_json()
+def predict(resp):
+    # resp = request.get_json()
     prediction = model_handler.predict(resp)
-    return jsonify(prediction.tolist())
+    return prediction.tolist()
 
 
 @app.route("/", methods=["GET"])
@@ -132,5 +132,5 @@ def root():
     return jsonify("Welcome to the NHL shot prediction API")
 
 
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port="7777", load_dotenv=True)
+# if __name__ == "__main__":
+#     app.run(debug=True, host="0.0.0.0", port="7777", load_dotenv=True)
