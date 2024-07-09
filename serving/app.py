@@ -61,6 +61,7 @@ class ModelHandler:
             return prediction
         except Exception as e:
             app.logger.error(f"Error predicting {self.model_name}: {e}")
+            return {}
         pass
 
     def fileNameParser(self):
@@ -121,8 +122,8 @@ def download_registry_model():
 
 
 @app.route("/predict", methods=["POST"])
-def predict():
-    resp = request.get_json()
+def predict(resp):
+    # resp = request.get_json()
     prediction = model_handler.predict(resp)
     return jsonify(prediction.tolist())
 
