@@ -43,7 +43,7 @@ with st.sidebar:
 
 # Game ID input
 if "game_id" not in st.session_state:
-    st.session_state["game_id"] = None
+    st.session_state["game_id"] = "2023020323"
 
 with st.container():
     st.header("Game ID")
@@ -87,7 +87,7 @@ with st.container():
         and not st.session_state["prediction_data"].empty
     ):
         st.subheader("Data used for prediction with predictions:")
-        st.dataframe(st.session_state["prediction_data"])
+        st.dataframe(st.session_state["prediction_data"].rename(columns={"net_distance": "Net distance (ft)", "shot_angle": "Shot angle (deg)", "goal_prob": "Goal probability"}))
 # Initialization of selected_event_index in session state
 if "selected_event_index" not in st.session_state:
     st.session_state["selected_event_index"] = 0
