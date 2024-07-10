@@ -1,8 +1,8 @@
 # Setup
 title:               Hockey Prediction Blog
 tagline:             'Real-Time NHL Forecasting'
-description:         'Live at: hockey-prediction.streamlit.app | Demo at: https://youtu.be/Lqi4OQlnkHQ'
-url:                 https://hockey-prediction.streamlit.app/'
+# description:         'Live at: hockey-prediction.streamlit.app | Demo at: https://youtu.be/Lqi4OQlnkHQ'
+# url:                 https://hockey-prediction.streamlit.app/'
 # baseurl:             '/Hockey-prediction'
 paginate:            5
 permalink:           pretty
