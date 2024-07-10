@@ -1,6 +1,6 @@
-Project demo at: https://youtu.be/Lqi4OQlnkHQ 
+**Live at**: [hockey-prediction.streamlit.app](https://hockey-prediction.streamlit.app)
 
-Live at: https://hockey-prediction.streamlit.app
+**Project demo at**: [Youtube](https://youtu.be/Lqi4OQlnkHQ)
 
 # IFT6758 Blog Post Template
 
