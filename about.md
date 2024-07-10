@@ -8,7 +8,7 @@ title: About
 </p>
 
 ## Team Members
+- [Duy Hung Le](mailto:duyhung2201@gmail.com)
 - [Gauransh Kumar](https://gauransh.dev)
 - [Fayçal Zine-Eddine](mailto:faycal.zine-eddine@umontreal.ca)
 - [Prince Immanuel Joseph Arokiaraj](mailto:prince.immanuel.joseph.arokiaraj@umontreal.ca)
-- [Duy Hung Le](mailto:duy.hung.le@umontreal.ca)
