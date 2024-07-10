@@ -3,7 +3,7 @@ title:               IFT6758 Blog
 tagline:             ''
 description:         ''
 url:                 ''
-# baseurl:             ''
+baseurl:             '/Hockey-prediction'
 paginate:            5
 permalink:           pretty
 
