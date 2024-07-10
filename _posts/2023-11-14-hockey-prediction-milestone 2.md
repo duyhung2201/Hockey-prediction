@@ -1,7 +1,3 @@
-**Live at**: [hockey-prediction.streamlit.app](https://hockey-prediction.streamlit.app)
-
-**Project demo at**: [Youtube](https://youtu.be/Lqi4OQlnkHQ)
-
 ## 2. Feature engineering I
 ### A histogram of shot counts binned by distance
 ![Alt text]({{ site.baseurl }}/assets/milestone2/question2/shot-by-distance-hist.png)

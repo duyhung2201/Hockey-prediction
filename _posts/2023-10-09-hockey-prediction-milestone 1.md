@@ -1,7 +1,3 @@
-**Live at**: [hockey-prediction.streamlit.app](https://hockey-prediction.streamlit.app)
-
-**Project demo at**: [Youtube](https://youtu.be/Lqi4OQlnkHQ)
-
 ## 1. Data Acquisition 
 The data acquisition process is one of the most important and initial steps of any data science pipeline. The data acquisition process for this project is as follows:
 - **Data Source:** The NHL API - [https://statsapi.web.nhl.com/api/v1/](https://statsapi.web.nhl.com/api/v1/)
