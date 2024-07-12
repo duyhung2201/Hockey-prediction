@@ -2,6 +2,8 @@
 
 **Project demo at**: [Youtube](https://youtu.be/Lqi4OQlnkHQ)
 
+**Blog post at**: [Hockey-prediction](https://duyhung2201.github.io/Hockey-prediction)
+
 # IFT6758 Blog Post Template
 
 This blog post template is based off of the [Lanyon](https://github.com/poole/lanyon) template (the original readme can be found at the bottom).
